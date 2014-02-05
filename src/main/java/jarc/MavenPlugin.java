@@ -62,7 +62,7 @@ public class MavenPlugin extends AbstractMojo
     /**
      * Location of the target directory.
      * 
-     * @parameter expression="${project.build.directory}"
+     * @parameter expression="${project.build.outputDirectory}"
      * @required
      */
     private final File outputDirectory = new File("");
@@ -70,11 +70,11 @@ public class MavenPlugin extends AbstractMojo
     /**
      * Project's source directory as specified in the POM.
      * 
-     * @parameter expression="${project.basedir}"
+     * @parameter expression="${project.build.sourceDirectory}"
      * @readonly
      * @required
      */
-    private final File baseDirectory = new File("");
+    private final File sourceDirectory = new File("");
 
     @Override
     public void execute() throws MojoExecutionException
@@ -85,14 +85,13 @@ public class MavenPlugin extends AbstractMojo
             return;
         }
 
-        if (!baseDirectory.exists()) {
-            getLog().error("Base directory \"" + baseDirectory + "\" is not valid.");
+        if (!sourceDirectory.exists()) {
+            getLog().error("Base directory \"" + sourceDirectory + "\" is not valid.");
             return;
         }
 
-        File srcDirectory = new File(baseDirectory, "src/main");
-        int srcPrefix = baseDirectory.getPath().length() + 1;
-        fillListWithAllFilesRecursiveTask(srcDirectory, files);
+        // sourceDirectory is src/main/java - use parent to search src/main/webapp also
+        fillListWithAllFilesRecursiveTask(sourceDirectory.getParentFile(), files);
 
         Env _env = new Env();
         _env.setThreadLocal(Symbol.intern("*in*"), Symbol.NIL);
@@ -102,7 +101,7 @@ public class MavenPlugin extends AbstractMojo
         {
             for (final String filePath : files) {
                 String filename = new File(filePath).getName();
-                String targetPath = new File(baseDirectory, "target/classes").getPath()
+                String targetPath = outputDirectory.getPath()
                     + "/" + filename.substring(0, filename.length()-4) + ".class";
                 Jarc.apply(Symbol.intern("compile"), Jarc.list(filePath, targetPath), _env);
             }
