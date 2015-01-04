@@ -93,16 +93,28 @@ public class MavenPlugin extends AbstractMojo
         // sourceDirectory is src/main/java - use parent to search src/main/webapp also
         fillListWithAllFilesRecursiveTask(sourceDirectory.getParentFile(), files);
 
+        String libdir = sourceDirectory.getParentFile() + "/webapp/WEB-INF/lib";
+
         Env _env = new Env();
         _env.setThreadLocal(Symbol.intern("*in*"), Symbol.NIL);
         _env.setThreadLocal(Symbol.intern("*out*"), new JarcWriter(System.out));
 
         try
         {
+            Symbol loadPathSymbol = Symbol.intern("load-path*");
+            Cons loadPath = (Cons)_env.get(loadPathSymbol);
+            loadPath = (Cons)_env.set(loadPathSymbol, Jarc.append(loadPath, libdir));
             for (final String filePath : files) {
-                String filename = new File(filePath).getName();
+                File file = new File(filePath);
+                String filename = file.getName();
+                String filedir = file.getParentFile().getPath();
                 String targetPath = outputDirectory.getPath()
                     + "/" + filename.substring(0, filename.length()-4) + ".class";
+                if (!loadPath.toList().contains(filedir))
+                {
+                    loadPath = (Cons)_env.set(loadPathSymbol, Jarc.append(loadPath, filedir));
+                }
+                Jarc.apply(Symbol.intern("add-lib-dir"), Jarc.list(libdir), _env);
                 Jarc.apply(Symbol.intern("compile"), Jarc.list(filePath, targetPath), _env);
             }
         }

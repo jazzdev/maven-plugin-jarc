@@ -4,7 +4,7 @@
 	<groupId>jarc.Jarc</groupId>
 	<artifactId>maven-plugin-jarc</artifactId>
 	<packaging>maven-plugin</packaging>
-	<version>1.0</version>
+	<version>1.0.1</version>
 	<name>Jarc Compiler Maven Mojo</name>
 	<url>http://maven.apache.org</url>
 	<dependencies>

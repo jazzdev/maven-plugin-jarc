@@ -8,6 +8,8 @@ Installation
 ------------
 
     mvn install
+    mvn package
+    cp target/maven-plugin-jarc-1.0.1.jar .../repo/jarc/Jarc/maven-plugin-jarc/1.0.1/maven-plugin-jarc-1.0.1.jar
 
 Usage
 -----
